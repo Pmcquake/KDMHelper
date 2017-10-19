@@ -5,7 +5,7 @@ from Tkinter import *
 #---------------------------------------------------------------------------------------------------------------------------------------------#
 
 # Connect to kdm database
-db = MySQLdb.connect (host = "localhost",
+db = MySQLdb.connect (host = "127.0.0.1",
 						user = "root",
 						passwd = "POOTS",
 						db = "kdm")
@@ -16,26 +16,8 @@ cur = db.cursor()
 
 #---------------------------------------------------------------------------------------------------------------------------------------------#
 
-# display the return of a mySQLdb query using a Tkinter text box
-def getItem(select, table, where, textBox):
-	query = "SELECT " + select + " FROM " + table
-	if (where == None):												# if there is no WHERE statement
-		cur.execute(query)
-		items = ""
-		for row in cur.fetchall():
-			for col in row[1:]:
-				items += str(col) + " | "
-			items += "\n"
-		textBox.delete(1.0, END)									# clear text box before writing new contents
-		textBox.insert(INSERT, items)
-		textBox.pack()
-	else:															# if there is a WHERE statement
-		query += " WHERE " + where
-		getWhere(query, textBox)
-
-
-# takes care of queries when there is a WHERE statement
-def getWhere(query, textBox):
+# Performs query on database, then displays the results
+def getItem(query):
 	cur.execute(query)
 	items = ""
 	for row in cur.fetchall():
@@ -44,26 +26,44 @@ def getWhere(query, textBox):
 		items += "\n"
 	textBox.delete(1.0, END)										# clear text box before writing new contents
 	textBox.insert(INSERT, items)
-	textBox.pack()
+	textBox.place(relheight = .80, relwidth = 1, rely = .15)
 
+
+#---------------------------------------------------------------------------------------------------------------------------------------------#
+
+# Assembles query based on currently selected options, then sends it to getItem
+def performQuery():
+	select = "*"
+	table = typeText.get()
+	where = None
+
+	query = "SELECT " + select + " FROM " + table
+	if (where != None):
+		query += " WHERE " + where	
+	getItem(query)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------#
 
 # Create Tkinter GUI
 root = Tkinter.Tk()
+root.title("KDMHelper")
+root.geometry("1000x500")											# set window size
 textBox = Text(root, width = 150)
+textScroll = Scrollbar(textBox)
 
-# Button for testing out GUI
-weaponTest = Tkinter.Button(root, text = "Weapons", command = lambda: getItem("*", "weapons", None, textBox))
-oneWeapon = Tkinter.Button(root, text = "One Weapon", command = lambda: getItem("*", "weapons", "id = 1", textBox))
-armorTest = Tkinter.Button(root, text = "Armor", command = lambda: getItem("*", "armor", None, textBox))
-gearTest = Tkinter.Button(root, text = "Gear", command = lambda: getItem("*", "gear", None, textBox))
+# OptionMenu implementation of type menu
+typeText = StringVar(root)
+typeText.set("Select Type")
+typeButton = OptionMenu(root, typeText, "Weapons", "Armor", "Gear")
+
+# Search button
+# Execute query when pressed
+search = Tkinter.Button(root, text = "Search", command = performQuery)
+
 
 # Actually open the GUI
-weaponTest.pack()
-oneWeapon.pack()
-armorTest.pack()
-gearTest.pack()
+typeButton.place(height = 25, relwidth = .12, relx = .05, rely = .1)
+search.place(height = 25, relwidth = .1, relx = .45, rely = .05)
 root.mainloop()
 
 
