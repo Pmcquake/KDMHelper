@@ -35,10 +35,10 @@ def getItem(query):
 def performQuery():
 	select = "*"
 	table = typeText.get()
-	where = None
+	where = "affinities = '" + affinityText.get() + "'"	# this will get more complex as I add additional search options, might have implement a helper function
 
 	query = "SELECT " + select + " FROM " + table
-	if (where != None):
+	if (affinityText.get() != "Any"):
 		query += " WHERE " + where	
 	getItem(query)
 
@@ -56,6 +56,11 @@ typeText = StringVar(root)
 typeText.set("Select Type")
 typeButton = OptionMenu(root, typeText, "Weapons", "Armor", "Gear")
 
+# Affinitiy menu
+affinityText = StringVar(root)
+affinityText.set("Select Affinity")
+affinityButton = OptionMenu(root, affinityText, "Any", "UR", "RR", "DR", "LR", "UB", "RB", "DB", "LB", "UG", "RG", "DG", "LG")
+
 # Search button
 # Execute query when pressed
 search = Tkinter.Button(root, text = "Search", command = performQuery)
@@ -63,6 +68,7 @@ search = Tkinter.Button(root, text = "Search", command = performQuery)
 
 # Actually open the GUI
 typeButton.place(height = 25, relwidth = .12, relx = .05, rely = .1)
+affinityButton.place(height = 25, relwidth = .12, relx = .23, rely = .1)
 search.place(height = 25, relwidth = .1, relx = .45, rely = .05)
 root.mainloop()
 
